@@ -10,6 +10,9 @@ int NUM_ARR_COPY = 5;
 [Setting name="Dummy bool"]
 bool DUMMY = false;
 
+[Setting name="Initialize on startup"]
+bool INIT_ON_STARTUP = false;
+
 uint64 lastFrameTime = Time::Now;
 uint64 startTime = Time::Now;
 int num_yields = 0;
@@ -29,7 +32,9 @@ void Main() {
   @valArr = array<uint64>();
   @timeArr = array<uint64>();
   @strArr = array<string>();
-  // startnew(DoFibMethod);
+  if (INIT_ON_STARTUP) {
+    startnew(DoFibMethod);
+  }
 }
 
 void RenderMenu() {
