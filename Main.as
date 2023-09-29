@@ -13,6 +13,18 @@ bool DUMMY = false;
 [Setting name="Initialize on startup"]
 bool INIT_ON_STARTUP = false;
 
+[Setting name="Number of runnables to spawn" drag min=1000 max=1000000]
+int NUM_RUNNABLES = 1000;
+
+[Setting name="Do work in coroutine?"]
+bool DO_COROUTINE = false;
+
+[Setting name="Use multiple ManyRunnables objects - this will crash the game"]
+bool USE_MANY_MANYRUNNABLES = false;
+
+[Setting name="Do yielding inside working loops"]
+bool YIELD = false;
+
 uint64 lastFrameTime = Time::Now;
 uint64 startTime = Time::Now;
 int num_yields = 0;
@@ -45,20 +57,61 @@ void RenderMenu() {
     if (UI::MenuItem("Re copy object refs")) {
       startnew(ReCopyObjRefs);
     }
+    if (UI::MenuItem("Do coroutine count testing")) {
+      startnew(DoCoroutineCountTest);
+    }
     UI::EndMenu();
   }
 }
+
+ManyRunnables rootRunnable();
 
 void Render() {
   lastFrameTime = Time::Now;
 }
 
+int total_coroutines = 0;
+int total_yields = 0;
+void DoCoroutineCountTest() {
+  ManyRunnables@ runnable;
+  if (USE_MANY_MANYRUNNABLES) {
+    @runnable = @ManyRunnables();
+  } else {
+    @runnable = @rootRunnable;
+  }
+
+  print("Test beginning! Count: " + tostring(NUM_RUNNABLES) + ", coroutines: " + tostring(DO_COROUTINE));
+  total_coroutines = 0;
+  total_yields = 0;
+  uint64 diff;
+  uint64 begin = Time::Now;
+  print("Starting runnable!");
+  runnable.Init();
+  uint64 init = Time::Now;
+  
+  diff = init - begin;
+  print("At init: time " + tostring(diff));
+  runnable.Start();
+  uint64 start = Time::Now;
+  diff = start - init;
+  print("At start: time " + tostring(diff));
+  int result = runnable.getResult();
+  uint64 end = Time::Now;
+  diff = end - start;
+  print("At end: time " + tostring(diff));
+  print("Resulting time: " + tostring(end - begin));
+  print("Calculated result: " + tostring(result));
+  print("Total coroutines: " + tostring(total_coroutines));
+  print("Total yields: " + tostring(total_yields));
+
+  print("Ending coroutine test.");
+}
 
 void YieldByTime() {
   uint64 curFrameTime = Time::get_Now() - lastFrameTime; 
   if (curFrameTime > MAX_FRAMETIME) {
     yield();
-    num_yields += 1;
+    total_yields += 1;
   }
 }
 
@@ -127,7 +180,7 @@ void ReCopyObjRefs() {
   copyLock = false;
 }
 
-void OnSettingsChanged() {
-  print("Re-copying object refs");
-  startnew(ReCopyObjRefs);
-}
+// void OnSettingsChanged() {
+//   print("Re-copying object refs");
+//   startnew(ReCopyObjRefs);
+// }
