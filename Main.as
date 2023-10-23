@@ -1,7 +1,7 @@
 void Main() {
 }
 
-ManyRunnables rootRunnable();
+// ManyRunnables rootRunnable();
 
 class FibObj {
 }
