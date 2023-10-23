@@ -38,6 +38,7 @@ array<string>@ strArr;
 void Main() {
 }
 
+ManyRunnables rootRunnable();
 
 void Render() {
   lastFrameTime = Time::Now;
